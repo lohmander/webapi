@@ -13,7 +13,8 @@ func handler(rw http.ResponseWriter, req *http.Request) {
 
 func main() {
 	api := webapi.NewAPI()
-	api.Add("/subscriptions", &Subscription{}, TeapotMiddleware)
+	api.Add(`^/subscriptions$`, &Subscription{}, TeapotMiddleware)
+	api.Add(`^/subscriptions/(?P<id>\d+)$`, &Subscription{})
 
 	http.ListenAndServe(":3002", api)
 }
@@ -29,7 +30,8 @@ type Subscription struct{}
 
 func (s Subscription) Post(request *webapi.Request) (int, webapi.Response) {
 	var data interface{} = map[string]string{
-		"test": "topp",
+		"tipp":  "topp",
+		"param": request.Param("id"),
 	}
 
 	return 200, webapi.Response{

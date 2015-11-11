@@ -32,15 +32,15 @@ type DeleteSupported interface {
 }
 
 type WebApi struct {
-	mux *http.ServeMux
+	mux *Mux
 }
 
 func NewAPI() *WebApi {
-	return &WebApi{http.NewServeMux()}
+	return &WebApi{&Mux{}}
 }
 
-func (webApi *WebApi) requestHandler(resource interface{}, middleware ...Middleware) http.HandlerFunc {
-	return func(rw http.ResponseWriter, r *http.Request) {
+func (webApi *WebApi) requestHandler(resource interface{}, middleware ...Middleware) HandlerFunc {
+	return func(rw http.ResponseWriter, r *Request) {
 		var handler Handler
 
 		switch r.Method {
@@ -71,7 +71,7 @@ func (webApi *WebApi) requestHandler(resource interface{}, middleware ...Middlew
 			handler = m(handler)
 		}
 
-		code, data := handler(&Request{})
+		code, data := handler(r)
 		content, err := json.Marshal(data)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
