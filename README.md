@@ -1,8 +1,14 @@
 # webapi
 
-Minimalist web API framework written in Go. Inspired by [`sleepy`](https://github.com/dougblack/sleepy), but with some batteries included.
+Minimalist web API framework written in Go. Inspired by [`sleepy`](https://github.com/dougblack/sleepy), but with some batteries included. No external dependencies.
 
-## Usage
+- [Example](#example)
+- [Usage](#usage)
+    + [Endpoints](#endpoints)
+    + [Middleware](#middleware)
+- [License](#license)
+
+## Example
 
 ```go
 package main
@@ -62,6 +68,70 @@ Content-Length: 24
 
 {"data":{"param":"123"}}
 ```
+
+## Usage
+
+To create a new api, simply use `webapi.NewAPI` and use the returned API as a handler.
+
+```go
+api := webapi.NewAPI()
+http.ListenAndServe(":3002", api)
+```
+
+Or prefix your API by passing it to `http.Handle` (notice the trailing slash).
+
+```go
+api := webapi.NewAPI()
+http.Handle("/api/", api)
+http.ListenAndServe(":3002", nil)
+```
+
+### Endpoints
+
+```go
+api.Add(`/items/(?P<id>\d+)$`, &Item{})
+
+// ...
+
+type Item struct {}
+
+func (item Item) Get(r *webapi.Request) (int, webapi.Response) {
+    var someData interface{} = map[string]string{
+        "key": "value"
+    }
+    return 200, webapi.Response{
+        Data: &someData
+    }
+}
+```
+
+### Middleware
+
+Any function that takes and returns a `webapi.Handler`.
+
+```go
+// always return I'm a teaopot status code
+func Teapot(handler webapi.Handler) webapi.Handler {
+    return func(r *webapi.Request) (int, webapi.Response) {
+        _, data := handler(r)
+        return 418, data
+    }
+}
+```
+
+And apply with either
+
+```go
+api.Apply(Teapot)
+```
+
+which will apply it to all endpoints added after it, or 
+
+```go
+api.Add(`/items/(?P<id>\d+)$`, &Item{}, Teapot)
+```
+
+to just apply it to the given endpoint.
 
 ## License
 
