@@ -10,15 +10,15 @@ import (
 func main() {
 	api := webapi.NewAPI()
 	api.Apply(Logger)
-	api.Add(`/subscriptions/(?P<id>\d+)$`, &Subscription{}, Teapot)
+	api.Add(`/items/(?P<id>\d+)$`, &Item{}, Teapot)
 
 	http.Handle("/api/", api)
 	http.ListenAndServe(":3002", nil)
 }
 
-type Subscription struct{}
+type Item struct{}
 
-func (s Subscription) Post(request *webapi.Request) (int, webapi.Response) {
+func (item Item) Post(request *webapi.Request) (int, webapi.Response) {
 	var data interface{} = map[string]string{
 		"param": request.Param("id"),
 	}

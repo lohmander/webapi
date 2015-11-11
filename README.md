@@ -17,15 +17,15 @@ import (
 func main() {
     api := webapi.NewAPI()
     api.Apply(Logger)
-    api.Add(`/subscriptions/(?P<id>\d+)$`, &Subscription{}, Teapot)
+    api.Add(`/items/(?P<id>\d+)$`, &Item{}, Teapot)
 
     http.Handle("/api/", api)
     http.ListenAndServe(":3002", nil)
 }
 
-type Subscription struct{}
+type Item struct{}
 
-func (s Subscription) Post(request *webapi.Request) (int, webapi.Response) {
+func (item Item) Post(request *webapi.Request) (int, webapi.Response) {
     var data interface{} = map[string]string{
         "param": request.Param("id"),
     }
@@ -51,6 +51,16 @@ func Teapot(handler webapi.Handler) webapi.Handler {
         return 418, data
     }
 }
+```
+```sh
+> curl -i -X POST http://localhost:3002/api/items/123
+
+HTTP/1.1 418 I'm a teapot
+Content-Type: application/json
+Date: Wed, 11 Nov 2015 21:23:57 GMT
+Content-Length: 24
+
+{"data":{"param":"123"}}
 ```
 
 ## License
