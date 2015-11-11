@@ -7,13 +7,10 @@ import (
 	"github.com/lohmander/webapi"
 )
 
-func handler(rw http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(rw, "Hello there")
-}
-
 func main() {
 	api := webapi.NewAPI()
 	api.Apply(Logger)
+
 	api.Add(`/subscriptions$`, &Subscription{})
 	api.Add(`/subscriptions/(?P<id>\d+)$`, &Subscription{}, Teapot)
 
@@ -24,7 +21,7 @@ func main() {
 func Logger(handler webapi.Handler) webapi.Handler {
 	return func(r *webapi.Request) (int, webapi.Response) {
 		code, data := handler(r)
-		fmt.Printf("%d %s %s", code, r.Method, r.URL.Path)
+		fmt.Println(code, r.Method, r.URL.Path)
 		return code, data
 	}
 }
