@@ -52,3 +52,7 @@ func Teapot(handler webapi.Handler) webapi.Handler {
     }
 }
 ```
+
+## License
+
+[MIT](https://github.com/lohmander/webapi/blob/master/LICENSE), see **LICENSE** file.
