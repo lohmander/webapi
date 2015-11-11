@@ -13,13 +13,23 @@ func handler(rw http.ResponseWriter, req *http.Request) {
 
 func main() {
 	api := webapi.NewAPI()
-	api.Add(`^/subscriptions$`, &Subscription{}, TeapotMiddleware)
-	api.Add(`^/subscriptions/(?P<id>\d+)$`, &Subscription{})
+	api.Apply(Logger)
+	api.Add(`/subscriptions$`, &Subscription{})
+	api.Add(`/subscriptions/(?P<id>\d+)$`, &Subscription{}, Teapot)
 
-	http.ListenAndServe(":3002", api)
+	http.Handle("/api/", api)
+	http.ListenAndServe(":3002", nil)
 }
 
-func TeapotMiddleware(handler webapi.Handler) webapi.Handler {
+func Logger(handler webapi.Handler) webapi.Handler {
+	return func(r *webapi.Request) (int, webapi.Response) {
+		code, data := handler(r)
+		fmt.Printf("%d %s %s", code, r.Method, r.URL.Path)
+		return code, data
+	}
+}
+
+func Teapot(handler webapi.Handler) webapi.Handler {
 	return func(r *webapi.Request) (int, webapi.Response) {
 		_, data := handler(r)
 		return 418, data

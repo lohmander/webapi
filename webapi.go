@@ -32,11 +32,12 @@ type DeleteSupported interface {
 }
 
 type WebApi struct {
-	mux *Mux
+	mux        *Mux
+	middleware []Middleware
 }
 
 func NewAPI() *WebApi {
-	return &WebApi{&Mux{}}
+	return &WebApi{&Mux{}, nil}
 }
 
 func (webApi *WebApi) requestHandler(resource interface{}, middleware ...Middleware) HandlerFunc {
@@ -67,7 +68,7 @@ func (webApi *WebApi) requestHandler(resource interface{}, middleware ...Middlew
 			return
 		}
 
-		for _, m := range middleware {
+		for _, m := range append(webApi.middleware, middleware...) {
 			handler = m(handler)
 		}
 
@@ -82,6 +83,10 @@ func (webApi *WebApi) requestHandler(resource interface{}, middleware ...Middlew
 		rw.WriteHeader(code)
 		rw.Write(content)
 	}
+}
+
+func (webApi *WebApi) Apply(middleware ...Middleware) {
+	webApi.middleware = middleware
 }
 
 func (webApi *WebApi) Add(path string, resource interface{}, middleware ...Middleware) {
