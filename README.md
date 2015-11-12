@@ -39,7 +39,7 @@ api.Add(`/items/(?P<id>\d+)$`, &Item{})
 type Item struct {}
 
 func (item Item) Get(r *webapi.Request) (int, webapi.Response) {
-    var someData interface{} = map[string]string{
+    someData := map[string]string{
         "key": "value"
     }
     return 200, webapi.Response{
