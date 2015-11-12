@@ -43,7 +43,7 @@ func (item Item) Get(r *webapi.Request) (int, webapi.Response) {
         "key": "value"
     }
     return 200, webapi.Response{
-        Data: &someData
+        Data: someData
     }
 }
 ```
@@ -78,6 +78,31 @@ to just apply it to the given endpoint. You can add any number of endpoints.
 
 ```go
 api.Add(`/items/(?P<id>\d+)$`, &Item{}, Teapot, AnotherMiddleware, AndSoOn)
+```
+
+### URL parameters
+
+You can use any valid regex when specifying paths for your resources. If you specify some named groups you can also access those as URL parameters.
+
+```go
+api.Add(`/items/(?P<id>\d+)$`, &Item{})
+
+// ... later inside of a request handler
+
+id := request.Param("id")
+```
+
+### Request body
+
+You can easily unmarshal an JSON request body using `request.UnmarshalBody`.
+
+```go
+var data interface{}
+
+err := request.UnmarshalBody(&data)
+if err != nil {
+    // handle appropriately 
+}
 ```
 
 ## Example
@@ -140,14 +165,14 @@ func Teapot(handler webapi.Handler) webapi.Handler {
 
 ```
 ```sh
-> curl -i -X POST http://localhost:3002/api/items/123
+> curl -i -X POST -d '{"greeting": "Hello world!"}' http://localhost:3002/api/items/123
 
 HTTP/1.1 418 I'm a teapot
 Content-Type: application/json
-Date: Wed, 11 Nov 2015 21:23:57 GMT
-Content-Length: 24
+Date: Thu, 12 Nov 2015 22:37:02 GMT
+Content-Length: 61
 
-{"data":{"param":"123"}}
+{"data":{"body":{"greeting":"Hello world!"},"idParam":"123"}}
 ```
 
 ## License
