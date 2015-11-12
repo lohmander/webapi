@@ -1,6 +1,7 @@
 package webapi
 
 import (
+	"encoding/json"
 	"net/http"
 )
 
@@ -11,4 +12,9 @@ type Request struct {
 
 func (r *Request) Param(name string) string {
 	return r.params[name]
+}
+
+func (r *Request) UnmarshalBody(target *interface{}) error {
+	decoder := json.NewDecoder(r.Body)
+	return decoder.Decode(target)
 }

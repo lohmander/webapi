@@ -5,6 +5,8 @@ Minimalist web API framework written in Go. Inspired by [`sleepy`](https://githu
 - [Usage](#usage)
     + [Endpoints](#endpoints)
     + [Middleware](#middleware)
+    + [URL parameters](#url-parameters)
+    + [Request body](#request-body)
 - [Example](#example)
 - [License](#license)
 
@@ -102,12 +104,20 @@ func main() {
 type Item struct{}
 
 func (item Item) Post(request *webapi.Request) (int, webapi.Response) {
-    var data interface{} = map[string]string{
-        "param": request.Param("id"),
+    var body interface{}
+
+    err := request.UnmarshalBody(&body)
+    if err != nil {
+        return 500, webapi.Response{
+            Error: err,
+        }
     }
 
     return 200, webapi.Response{
-        Data: &data,
+        Data: map[string]interface{}{
+            "body":    body,
+            "idParam": request.Param("id"),
+        },
     }
 }
 
@@ -127,6 +137,7 @@ func Teapot(handler webapi.Handler) webapi.Handler {
         return 418, data
     }
 }
+
 ```
 ```sh
 > curl -i -X POST http://localhost:3002/api/items/123

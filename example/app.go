@@ -19,12 +19,20 @@ func main() {
 type Item struct{}
 
 func (item Item) Post(request *webapi.Request) (int, webapi.Response) {
-	var data interface{} = map[string]string{
-		"param": request.Param("id"),
+	var body interface{}
+
+	err := request.UnmarshalBody(&body)
+	if err != nil {
+		return 500, webapi.Response{
+			Error: err,
+		}
 	}
 
 	return 200, webapi.Response{
-		Data: &data,
+		Data: map[string]interface{}{
+			"body":    body,
+			"idParam": request.Param("id"),
+		},
 	}
 }
 
