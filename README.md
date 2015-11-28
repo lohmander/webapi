@@ -53,7 +53,7 @@ func (item Item) Get(r *webapi.Request) (int, webapi.Response) {
 Any function that takes and returns a `webapi.Handler`.
 
 ```go
-// always return I'm a teaopot status code
+// always return I'm a teapot status code
 func Teapot(handler webapi.Handler) webapi.Handler {
     return func(r *webapi.Request) (int, webapi.Response) {
         _, data := handler(r)
