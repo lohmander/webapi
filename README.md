@@ -51,6 +51,50 @@ func (item Item) Get(r *webapi.Request) (int, webapi.Response) {
 }
 ```
 
+#### Multiple handlers for one endpoint
+
+Having multiple handlers for the same endpoint can be useful for instance when you need to maintain multiple versions of the same endpoint in your API.
+
+It can be done using the `webapi.Handlers` function. 
+
+```go
+func create_v100(r *webapi.Request) (int, webapi.Response) {
+    // ...
+}
+
+func create_v110(r *webapi.Request) (int, webapi.Response) {
+    // ...
+}
+
+func (item Item) Post(r *webapi.Request) (int, webapi.Response) {
+    return webapi.Handlers(r, []Handler{
+        webapi.Apply(create_v100, Version("1.0.0")),
+        webapi.Apply(create_v110, Version("1.1.0")),
+    })
+}
+
+// versioning middleware
+func Version(version string) Middleware {
+    return func(handler webapi.Handler) webapi.Handler {
+        return func(r *webapi.Request) (int, webapi.Response) {
+            requestedVersion := "1.1.0" // extract this somehow from the request
+
+            if version != requestedVersion {
+                return webapi.Next()
+            }
+            return handler(r)
+        }
+    }
+}
+```
+
+So what's happening here...
+
+- We have 2 different implementations of the same endpoint (v100 & v110).
+- We pass the request object and all of our handlers to the `webapi.Handlers` function.
+- We apply our `Version`-middleware to each handler using `webapi.Apply`, which in this case would be the same thing as `Version("1.0.0")(create_v100)`.
+- In our middleware we check if the requested version matches the one for the current handler, if not return `webapi.Next()` and otherwise return the handler response. 
+
 ### Middleware
 
 Any function that takes and returns a `webapi.Handler`.
