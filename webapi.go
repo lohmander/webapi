@@ -94,7 +94,7 @@ func Apply(handler Handler, middleware ...Middleware) Handler {
 	return h
 }
 
-func (webapi *WebAPI) requestHandler(resource interface{}, middleware ...Middleware) HandlerFunc {
+func (webapi *WebAPI) requestHandler(resource interface{}, middleware ...Middleware) handlerFunc {
 	return func(rw http.ResponseWriter, r *Request) {
 		var handler Handler
 

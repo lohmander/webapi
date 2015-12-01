@@ -11,7 +11,7 @@ type handlerFunc func(http.ResponseWriter, *Request)
 // Route represents a single route and its handler function.
 type Route struct {
 	path    string
-	handler HandlerFunc
+	handler handlerFunc
 }
 
 // Mux holds all the API routes.
