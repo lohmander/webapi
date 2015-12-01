@@ -40,6 +40,31 @@ func NewAPI() *WebApi {
 	return &WebApi{&Mux{}, nil}
 }
 
+func Handlers(r *Request, handlers []Handler) (int, Response) {
+	var code int
+	var data Response
+	for _, handler := range handlers {
+		code, data = handler(r)
+
+		if code > 0 {
+			return code, data
+		}
+	}
+	return code, data
+}
+
+func Next() (int, Response) {
+	return 0, Response{}
+}
+
+func Bake(handler Handler, middleware ...Middleware) Handler {
+	h := handler
+	for _, m := range middleware {
+		h = m(h)
+	}
+	return h
+}
+
 func (webApi *WebApi) requestHandler(resource interface{}, middleware ...Middleware) HandlerFunc {
 	return func(rw http.ResponseWriter, r *Request) {
 		var handler Handler
