@@ -40,6 +40,9 @@ func NewAPI() *WebApi {
 	return &WebApi{&Mux{}, nil}
 }
 
+// Handlers lets an enpoint return multiple handlers and thus
+// return different responses based on whatever conditional you
+// may come up with.
 func Handlers(r *Request, handlers []Handler) (int, Response) {
 	var code int
 	var data Response
@@ -53,11 +56,15 @@ func Handlers(r *Request, handlers []Handler) (int, Response) {
 	return code, data
 }
 
+// Returns a zero status code and empty response will make the
+// Handlers function move on to the next handler
 func Next() (int, Response) {
 	return 0, Response{}
 }
 
-func Bake(handler Handler, middleware ...Middleware) Handler {
+// Apply applies all the given middleware to provided
+// handler function and then returns it
+func Apply(handler Handler, middleware ...Middleware) Handler {
 	h := handler
 	for _, m := range middleware {
 		h = m(h)
