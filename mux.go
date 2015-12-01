@@ -5,17 +5,23 @@ import (
 	"regexp"
 )
 
-type HandlerFunc func(http.ResponseWriter, *Request)
+// HandlerFunc which is used to respond to a HTTP request.
+type handlerFunc func(http.ResponseWriter, *Request)
 
+// Route represents a single route and its handler function.
 type Route struct {
 	path    string
 	handler HandlerFunc
 }
 
+// Mux holds all the API routes.
 type Mux struct {
 	routes []Route
 }
 
+// matchPath matches request path against all specified routes.
+// If a route is matched, all of the URL parameters will be parsed
+// and added to the `Request`-object.
 func (mux *Mux) matchPath(path string, route Route) (bool, map[string]string) {
 	regex := regexp.MustCompile(route.path)
 
@@ -37,11 +43,16 @@ func (mux *Mux) matchPath(path string, route Route) (bool, map[string]string) {
 	return true, result
 }
 
-func (mux *Mux) HandleFunc(path string, handler HandlerFunc) {
+// HandleFunc adds a handler function for given route/path.
+func (mux *Mux) HandleFunc(path string, handler handlerFunc) {
 	route := Route{path, handler}
 	mux.routes = append(mux.routes, route)
 }
 
+// ServeHTTP is required to implement the net/http Handler interface
+// and thus be compatible with the standard net/http library.
+//
+// Takes care of serving all HTTP requests.
 func (mux *Mux) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
