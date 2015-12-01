@@ -86,7 +86,7 @@ Content-Length: 61
 
 ## Usage
 
-To create a new api, simply use `webapi.NewAPI` and use the returned API as a handler.
+To create a new API, simply use `webapi.NewAPI` and use the returned API as a handler.
 
 ```go
 api := webapi.NewAPI()
@@ -196,7 +196,7 @@ to just apply it to the given resources. You can add any number of middleware.
 api.Add(`/items/(?P<id>\d+)$`, &Item{}, Teapot, AnotherMiddleware, AndSoOn)
 ```
 
-You can also apply middleware directly to a handler with the `webapi.Apply`-function, such in the multiple handlers per endpoint example above.
+You can also apply middleware directly to a handler with the `webapi.Apply` function, as seen in the multiple handlers per endpoint example above.
 
 ### URL parameters
 
