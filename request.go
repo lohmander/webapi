@@ -18,7 +18,7 @@ func (r *Request) Param(name string) string {
 	return r.params[name]
 }
 
-// Unmarshals request body from JSON to the provided target.
+// UnmarshalBody unmarshals request body from JSON to the provided target.
 func (r *Request) UnmarshalBody(target interface{}) error {
 	decoder := json.NewDecoder(r.Body)
 	return decoder.Decode(target)

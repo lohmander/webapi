@@ -43,23 +43,23 @@ type DeleteSupported interface {
 	Delete(*Request) (int, Response)
 }
 
-// An API manages the resource endpoints that has been added
+// WebAPI is an API that manages the resource endpoints that has been added
 // to it and routes requests to the appropriate handler function(s).
 //
-// Since WebApi implements the net/http Handler interface, you can
+// Since WebAPI implements the net/http Handler interface, you can
 // add any number of APIs under the same port/server, prefix your
 // API and so on. For instance
 //
 // 	http.Handle("/api/v1", apiv1)
 // 	http.Handle("/api/v2", apiv2)
-type WebApi struct {
+type WebAPI struct {
 	mux        *Mux
 	middleware []Middleware
 }
 
-// NewAPI returns a new instance of WebApi.
-func NewAPI() *WebApi {
-	return &WebApi{&Mux{}, nil}
+// NewAPI returns a new instance of WebAPI.
+func NewAPI() *WebAPI {
+	return &WebAPI{&Mux{}, nil}
 }
 
 // Handlers lets an enpoint return multiple handlers and thus
@@ -78,7 +78,7 @@ func Handlers(r *Request, handlers []Handler) (int, Response) {
 	return code, data
 }
 
-// Returns a zero status code and empty response. Will make the
+// Next returns a zero status code and empty response. Will make the
 // `Handlers` function move on to the next handler.
 func Next() (int, Response) {
 	return 0, Response{}
@@ -94,7 +94,7 @@ func Apply(handler Handler, middleware ...Middleware) Handler {
 	return h
 }
 
-func (webApi *WebApi) requestHandler(resource interface{}, middleware ...Middleware) HandlerFunc {
+func (webapi *WebAPI) requestHandler(resource interface{}, middleware ...Middleware) HandlerFunc {
 	return func(rw http.ResponseWriter, r *Request) {
 		var handler Handler
 
@@ -122,7 +122,7 @@ func (webApi *WebApi) requestHandler(resource interface{}, middleware ...Middlew
 			return
 		}
 
-		for _, m := range append(webApi.middleware, middleware...) {
+		for _, m := range append(webapi.middleware, middleware...) {
 			handler = m(handler)
 		}
 
@@ -140,16 +140,16 @@ func (webApi *WebApi) requestHandler(resource interface{}, middleware ...Middlew
 }
 
 // Apply applies middleware to all subsequently added resources.
-func (webApi *WebApi) Apply(middleware ...Middleware) {
-	webApi.middleware = middleware
+func (webapi *WebAPI) Apply(middleware ...Middleware) {
+	webapi.middleware = middleware
 }
 
 // Add adds a resource to the API.
-func (webApi *WebApi) Add(path string, resource interface{}, middleware ...Middleware) {
-	webApi.mux.HandleFunc(path, webApi.requestHandler(resource, middleware...))
+func (webapi *WebAPI) Add(path string, resource interface{}, middleware ...Middleware) {
+	webapi.mux.HandleFunc(path, webapi.requestHandler(resource, middleware...))
 }
 
-// ServeHTTP aliases the webApi.mux.ServeHTTP function.
-func (webApi *WebApi) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	webApi.mux.ServeHTTP(rw, r)
+// ServeHTTP aliases the webapi.mux.ServeHTTP function.
+func (webapi *WebAPI) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+	webapi.mux.ServeHTTP(rw, r)
 }
