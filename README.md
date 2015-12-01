@@ -115,17 +115,19 @@ And apply with either
 api.Apply(Teapot)
 ```
 
-which will apply it to all endpoints added after it, or 
+which will apply it to all resources added after it, or 
 
 ```go
 api.Add(`/items/(?P<id>\d+)$`, &Item{}, Teapot)
 ```
 
-to just apply it to the given endpoint. You can add any number of endpoints.
+to just apply it to the given resources. You can add any number of middleware.
 
 ```go
 api.Add(`/items/(?P<id>\d+)$`, &Item{}, Teapot, AnotherMiddleware, AndSoOn)
 ```
+
+You can also apply middleware directly to a handler with the `webapi.Apply`-function, such in the multiple handlers per endpoint example above.
 
 ### URL parameters
 
