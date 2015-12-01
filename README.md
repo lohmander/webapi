@@ -1,5 +1,7 @@
 # webapi
 
+[![GoDoc](https://godoc.org/github.com/lohmander/webapi?status.svg)](https://godoc.org/github.com/lohmander/webapi)
+
 Minimalist web API framework written in Go. Inspired by [`sleepy`](https://github.com/dougblack/sleepy), but with some batteries included. No external dependencies.
 
 - [Usage](#usage)
