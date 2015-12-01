@@ -5,15 +5,84 @@
 
 Minimalist web API framework written in Go. Inspired by [`sleepy`](https://github.com/dougblack/sleepy), but with some batteries included. No external dependencies.
 
+- [Example](#example)
 - [Usage](#usage)
     + [Endpoints](#endpoints)
     + [Middleware](#middleware)
     + [URL parameters](#url-parameters)
     + [Request body](#request-body)
-- [Example](#example)
 - [License](#license)
 
 
+## Example
+
+```go
+package main
+
+import (
+    "fmt"
+    "net/http"
+
+    "github.com/lohmander/webapi"
+)
+
+func main() {
+    api := webapi.NewAPI()
+    api.Apply(Logger)
+    api.Add(`/items/(?P<id>\d+)$`, &Item{}, Teapot)
+
+    http.Handle("/api/", api)
+    http.ListenAndServe(":3002", nil)
+}
+
+type Item struct{}
+
+func (item Item) Post(request *webapi.Request) (int, webapi.Response) {
+    var body interface{}
+
+    err := request.UnmarshalBody(&body)
+    if err != nil {
+        return 500, webapi.Response{
+            Error: err,
+        }
+    }
+
+    return 200, webapi.Response{
+        Data: map[string]interface{}{
+            "body":    body,
+            "idParam": request.Param("id"),
+        },
+    }
+}
+
+// some middleware
+
+func Logger(handler webapi.Handler) webapi.Handler {
+    return func(r *webapi.Request) (int, webapi.Response) {
+        code, data := handler(r)
+        fmt.Println(code, r.Method, r.URL.Path)
+        return code, data
+    }
+}
+
+func Teapot(handler webapi.Handler) webapi.Handler {
+    return func(r *webapi.Request) (int, webapi.Response) {
+        _, data := handler(r)
+        return 418, data
+    }
+}
+
+```
+```sh
+> curl -i -X POST -d '{"greeting": "Hello world!"}' http://localhost:3002/api/items/123
+
+HTTP/1.1 418 I'm a teapot
+Content-Type: application/json
+Date: Thu, 12 Nov 2015 22:37:02 GMT
+Content-Length: 61
+
+{"data":{"body":{"greeting":"Hello world!"},"idParam":"123"}}
+```
 
 ## Usage
 
@@ -152,76 +221,6 @@ err := request.UnmarshalBody(&data)
 if err != nil {
     // handle appropriately 
 }
-```
-
-## Example
-
-```go
-package main
-
-import (
-    "fmt"
-    "net/http"
-
-    "github.com/lohmander/webapi"
-)
-
-func main() {
-    api := webapi.NewAPI()
-    api.Apply(Logger)
-    api.Add(`/items/(?P<id>\d+)$`, &Item{}, Teapot)
-
-    http.Handle("/api/", api)
-    http.ListenAndServe(":3002", nil)
-}
-
-type Item struct{}
-
-func (item Item) Post(request *webapi.Request) (int, webapi.Response) {
-    var body interface{}
-
-    err := request.UnmarshalBody(&body)
-    if err != nil {
-        return 500, webapi.Response{
-            Error: err,
-        }
-    }
-
-    return 200, webapi.Response{
-        Data: map[string]interface{}{
-            "body":    body,
-            "idParam": request.Param("id"),
-        },
-    }
-}
-
-// some middleware
-
-func Logger(handler webapi.Handler) webapi.Handler {
-    return func(r *webapi.Request) (int, webapi.Response) {
-        code, data := handler(r)
-        fmt.Println(code, r.Method, r.URL.Path)
-        return code, data
-    }
-}
-
-func Teapot(handler webapi.Handler) webapi.Handler {
-    return func(r *webapi.Request) (int, webapi.Response) {
-        _, data := handler(r)
-        return 418, data
-    }
-}
-
-```
-```sh
-> curl -i -X POST -d '{"greeting": "Hello world!"}' http://localhost:3002/api/items/123
-
-HTTP/1.1 418 I'm a teapot
-Content-Type: application/json
-Date: Thu, 12 Nov 2015 22:37:02 GMT
-Content-Length: 61
-
-{"data":{"body":{"greeting":"Hello world!"},"idParam":"123"}}
 ```
 
 ## License
