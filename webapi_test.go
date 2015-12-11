@@ -14,12 +14,12 @@ func TestNewAPI(t *testing.T) {
 }
 
 func TestHandlers(t *testing.T) {
-	code, _ := Handlers(makeRequest(), []Handler{
+	code, _ := Handlers(makeRequest(),
 		func(r *Request) (int, Response) {
 			return Next()
 		},
 		handler,
-	})
+	)
 
 	if code != 201 {
 		t.Fatalf("expected '%d', got '%d'", 201, code)

@@ -136,10 +136,10 @@ func create_v110(r *webapi.Request) (int, webapi.Response) {
 }
 
 func (item Item) Post(r *webapi.Request) (int, webapi.Response) {
-    return webapi.Handlers(r, []Handler{
+    return webapi.Handlers(r,
         webapi.Apply(create_v100, Version("1.0.0")),
         webapi.Apply(create_v110, Version("1.1.0")),
-    })
+    )
 }
 
 // versioning middleware

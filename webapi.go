@@ -65,7 +65,7 @@ func NewAPI() *WebAPI {
 // Handlers lets an enpoint return multiple handlers and thus
 // return different responses based on whatever conditional you
 // may come up with.
-func Handlers(r *Request, handlers []Handler) (int, Response) {
+func Handlers(r *Request, handlers ...Handler) (int, Response) {
 	var code int
 	var data Response
 	for _, handler := range handlers {
