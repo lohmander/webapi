@@ -1,3 +1,5 @@
+**No longer maintained.**
+
 # webapi
 
 [![Build Status](https://travis-ci.org/lohmander/webapi.svg)](https://travis-ci.org/lohmander/webapi)
